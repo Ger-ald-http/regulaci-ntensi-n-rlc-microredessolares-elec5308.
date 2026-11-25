@@ -1,0 +1,858 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Regulación de Tensión en Convertidores RLC para Microredes Solares | ELEC-5308</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']]
+      }
+    };
+  </script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+  <style>
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Inter', system-ui, -apple-system, sans-serif; background-color: #f8fafc; color: #0f172a; }
+    .math-box { background: #ffffff; border-left: 4px solid #0284c7; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+    .slider-accent { accent-color: #0284c7; }
+    canvas { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 0.5rem; }
+  </style>
+</head>
+<body class="antialiased">
+
+  <!-- Barra de Navegación Superior -->
+  <header class="sticky top-0 z-50 bg-slate-900 text-white shadow-md">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex flex-wrap items-center justify-between gap-4">
+      <div>
+        <span class="text-xs uppercase tracking-wider text-sky-400 font-semibold">Universidad Hispanoamericana · ELEC-5308</span>
+        <h1 class="text-base sm:text-lg font-bold leading-tight">Regulación de Tensión en Convertidores RLC para Microredes Solares</h1>
+      </div>
+      <nav class="flex flex-wrap gap-2 text-xs sm:text-sm font-medium">
+        <a href="#sec1" class="px-3 py-1.5 rounded bg-slate-800 hover:bg-sky-600 transition">1. Arquitectura</a>
+        <a href="#sec2" class="px-3 py-1.5 rounded bg-slate-800 hover:bg-sky-600 transition">2. Modelado</a>
+        <a href="#sec3" class="px-3 py-1.5 rounded bg-slate-800 hover:bg-sky-600 transition">3. Espacio de Estados</a>
+        <a href="#sec4" class="px-3 py-1.5 rounded bg-sky-600 hover:bg-sky-500 transition font-semibold">4. Simulador & Octave</a>
+        <a href="#sec5" class="px-3 py-1.5 rounded bg-slate-800 hover:bg-sky-600 transition">5. Estabilidad</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Portada Académica -->
+  <section class="bg-gradient-to-br from-slate-900 via-slate-800 to-sky-950 text-white py-12 border-b border-slate-700">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="inline-block px-3 py-1 mb-4 text-xs font-semibold tracking-wider uppercase bg-sky-500/20 text-sky-300 border border-sky-400/30 rounded-full">
+        Proyecto de Investigación Aplicada · Tema #8 · 2026
+      </div>
+      <h2 class="text-3xl sm:text-4xl font-extrabold tracking-tight mb-4">
+        Control en Espacio de Estados y Regulación PID de un Convertidor DC-DC RLC en Microredes Fotovoltaicas
+      </h2>
+      <p class="text-slate-300 max-w-3xl text-base sm:text-lg mb-6">
+        Análisis dinámico, formulación matricial $(A, B, C, D)$, cálculo de autovalores y validación experimental mediante simulación interactiva en tiempo real y GNU Octave.
+      </p>
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm bg-slate-900/60 p-4 rounded-xl border border-slate-700/80 max-w-4xl">
+        <div>
+          <span class="block text-slate-400 text-xs uppercase">Estudiante</span>
+          <span class="font-semibold text-white">Gerald Jesús Fernández Solano</span>
+        </div>
+        <div>
+          <span class="block text-slate-400 text-xs uppercase">Curso & Docente</span>
+          <span class="font-semibold text-white">Análisis de Sistemas · Prof. Herberth Córdoba A.</span>
+        </div>
+        <div>
+          <span class="block text-slate-400 text-xs uppercase">Carrera</span>
+          <span class="font-semibold text-white">Bachillerato en Ingeniería Electrónica</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-16">
+
+    <!-- SECCIÓN 1: CONTEXTO INDUSTRIAL Y ARQUITECTURA DE CONTROL -->
+    <section id="sec1" class="scroll-mt-20">
+      <div class="flex items-center gap-3 mb-6">
+        <span class="w-9 h-9 rounded-lg bg-sky-600 text-white font-bold flex items-center justify-center">1</span>
+        <h3 class="text-2xl font-bold text-slate-900">Contexto Industrial y Arquitectura de Control</h3>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+        <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 space-y-4">
+          <p class="text-slate-700 leading-relaxed">
+            En una <strong>microred solar fotovoltaica de corriente directa (DC)</strong>, la generación primaria varía constantemente debido a cambios en la irradiancia solar y la temperatura ambiente. Para mantener un bus DC regulado (por ejemplo a $V_{	ext{ref}} = 48	ext{ V}$) capaz de alimentar cargas industriales críticas sin sobretensiones, se utiliza un convertidor conmutado Buck seguido de un <strong>filtro pasabajas $LC$ acoplado a una carga resistiva equivalente $R$</strong>.
+          </p>
+          <div class="space-y-3 pt-2">
+            <div class="p-3 bg-slate-50 rounded-lg border border-slate-200">
+              <span class="font-bold text-sky-700">Planta:</span> Etapa de potencia del filtro RLC conformada por el inductor $L$, el capacitor de salida $C$ y la resistencia de carga de la microred $R$.
+            </div>
+            <div class="p-3 bg-slate-50 rounded-lg border border-slate-200">
+              <span class="font-bold text-sky-700">Actuador:</span> Interruptor MOSFET de potencia gobernado por un modulador PWM que aplica una tensión controlada $u(t) = d(t)\cdot V_{	ext{in}}$ al filtro.
+            </div>
+            <div class="p-3 bg-slate-50 rounded-lg border border-slate-200">
+              <span class="font-bold text-sky-700">Sensor (Transductor):</span> Divisor resistivo de precisión con amplificador de aislamiento que mide la tensión de salida $v_C(t)$.
+            </div>
+            <div class="p-3 bg-slate-50 rounded-lg border border-slate-200">
+              <span class="font-bold text-sky-700">Controlador:</span> Compensador digital PID $C(s)$ ejecutado en microcontrolador/DSP que regula el ciclo de trabajo para anular el error.
+            </div>
+            <div class="p-3 bg-amber-50 rounded-lg border border-amber-200">
+              <span class="font-bold text-amber-800">Perturbaciones Físicas:</span> Caídas súbitas de radiación solar (nubes) y escalones de demanda de corriente por conexión/desconexión de cargas.
+            </div>
+          </div>
+        </div>
+
+        <!-- Diagrama SVG Arquitectura Industrial -->
+        <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+          <h4 class="text-sm font-bold uppercase tracking-wider text-slate-500 mb-4">Diagrama de Lazo Cerrado de la Microred Solar</h4>
+          <svg viewBox="0 0 620 330" class="w-full h-auto">
+            <defs>
+              <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                <path d="M 0 1 L 10 5 L 0 9 z" fill="#0f172a"/>
+              </marker>
+              <marker id="arrow-red" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                <path d="M 0 1 L 10 5 L 0 9 z" fill="#dc2626"/>
+              </marker>
+            </defs>
+
+            <!-- Referencia -->
+            <text x="15" y="105" font-size="12" font-weight="bold" fill="#0f172a">V_ref (48V)</text>
+            <line x1="20" y1="115" x2="85" y2="115" stroke="#0f172a" stroke-width="2" marker-end="url(#arrow)"/>
+
+            <!-- Punto de Suma -->
+            <circle cx="105" cy="115" r="16" fill="#e0f2fe" stroke="#0284c7" stroke-width="2"/>
+            <text x="95" y="112" font-size="12" font-weight="bold" fill="#0284c7">+</text>
+            <text x="108" y="126" font-size="14" font-weight="bold" fill="#dc2626">-</text>
+
+            <!-- Error -->
+            <line x1="121" y1="115" x2="165" y2="115" stroke="#0f172a" stroke-width="2" marker-end="url(#arrow)"/>
+            <text x="128" y="107" font-size="11" fill="#475569">e(t)</text>
+
+            <!-- Controlador -->
+            <rect x="170" y="85" width="110" height="60" rx="8" fill="#0284c7" stroke="#0369a1" stroke-width="2"/>
+            <text x="225" y="112" text-anchor="middle" font-size="12" font-weight="bold" fill="#ffffff">Controlador</text>
+            <text x="225" y="129" text-anchor="middle" font-size="11" fill="#e0f2fe">PID C(s)</text>
+
+            <!-- Señal control -->
+            <line x1="280" y1="115" x2="325" y2="115" stroke="#0f172a" stroke-width="2" marker-end="url(#arrow)"/>
+            <text x="290" y="107" font-size="11" fill="#475569">d(t)</text>
+
+            <!-- Actuador -->
+            <rect x="330" y="85" width="105" height="60" rx="8" fill="#0f172a" stroke="#334155" stroke-width="2"/>
+            <text x="382" y="112" text-anchor="middle" font-size="12" font-weight="bold" fill="#ffffff">Actuador</text>
+            <text x="382" y="129" text-anchor="middle" font-size="10" fill="#cbd5e1">PWM + MOSFET</text>
+
+            <!-- Perturbación Solar -->
+            <line x1="382" y1="25" x2="382" y2="80" stroke="#dc2626" stroke-width="2" stroke-dasharray="4" marker-end="url(#arrow-red)"/>
+            <text x="382" y="18" text-anchor="middle" font-size="11" font-weight="bold" fill="#dc2626">Perturbación: Irradiancia V_in</text>
+
+            <!-- Entrada u(t) -->
+            <line x1="435" y1="115" x2="475" y2="115" stroke="#0f172a" stroke-width="2" marker-end="url(#arrow)"/>
+            <text x="444" y="107" font-size="11" fill="#475569">u(t)</text>
+
+            <!-- Planta RLC -->
+            <rect x="480" y="85" width="105" height="60" rx="8" fill="#059669" stroke="#047857" stroke-width="2"/>
+            <text x="532" y="112" text-anchor="middle" font-size="12" font-weight="bold" fill="#ffffff">Planta RLC</text>
+            <text x="532" y="129" text-anchor="middle" font-size="10" fill="#d1fae5">Filtro LC + Carga</text>
+
+            <!-- Perturbación Carga -->
+            <line x1="532" y1="25" x2="532" y2="80" stroke="#dc2626" stroke-width="2" stroke-dasharray="4" marker-end="url(#arrow-red)"/>
+            <text x="532" y="18" text-anchor="middle" font-size="11" font-weight="bold" fill="#dc2626">Cambio de Carga R</text>
+
+            <!-- Salida v_C(t) -->
+            <line x1="585" y1="115" x2="615" y2="115" stroke="#0f172a" stroke-width="2"/>
+            <text x="595" y="105" font-size="12" font-weight="bold" fill="#059669">v_C(t)</text>
+
+            <!-- Realimentación Sensor -->
+            <polyline points="598,115 598,255 435,255" fill="none" stroke="#0f172a" stroke-width="2" marker-end="url(#arrow)"/>
+            <rect x="305" y="228" width="125" height="52" rx="8" fill="#f1f5f9" stroke="#64748b" stroke-width="2"/>
+            <text x="367" y="251" text-anchor="middle" font-size="12" font-weight="bold" fill="#0f172a">Sensor Tensión</text>
+            <text x="367" y="267" text-anchor="middle" font-size="10" fill="#475569">Divisor Aislado H(s)=1</text>
+            <polyline points="305,255 105,255 105,135" fill="none" stroke="#0f172a" stroke-width="2" marker-end="url(#arrow)"/>
+          </svg>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECCIÓN 2: MODELADO MATEMÁTICO FÍSICO -->
+    <section id="sec2" class="scroll-mt-20">
+      <div class="flex items-center gap-3 mb-6">
+        <span class="w-9 h-9 rounded-lg bg-sky-600 text-white font-bold flex items-center justify-center">2</span>
+        <h3 class="text-2xl font-bold text-slate-900">Modelado Matemático Físico (Leyes de Kirchhoff)</h3>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Esquema Eléctrico SVG -->
+        <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 flex flex-col justify-between">
+          <div>
+            <h4 class="text-sm font-bold uppercase tracking-wider text-slate-500 mb-3">Circuito Equivalente Promediado</h4>
+            <p class="text-xs text-slate-600 mb-4">
+              El modelo promediado del convertidor en conducción continua es lineal respecto a las variables de almacenamiento de energía $i_L(t)$ y $v_C(t)$.
+            </p>
+          </div>
+          <svg viewBox="0 0 340 210" class="w-full h-auto">
+            <!-- Fuente u(t) -->
+            <circle cx="45" cy="105" r="22" fill="#e0f2fe" stroke="#0284c7" stroke-width="2"/>
+            <text x="45" y="98" text-anchor="middle" font-size="12" font-weight="bold" fill="#0284c7">+</text>
+            <text x="45" y="120" text-anchor="middle" font-size="14" font-weight="bold" fill="#0284c7">-</text>
+            <text x="15" y="110" font-size="12" font-weight="bold" fill="#0f172a">u(t)</text>
+
+            <!-- Cable superior hacia L -->
+            <polyline points="45,83 45,40 95,40" fill="none" stroke="#0f172a" stroke-width="2"/>
+            <!-- Inductor L (arcos) -->
+            <path d="M 95 40 Q 105 20 115 40 Q 125 20 135 40 Q 145 20 155 40 Q 165 20 175 40" fill="none" stroke="#0f172a" stroke-width="2.5"/>
+            <text x="135" y="22" text-anchor="middle" font-size="12" font-weight="bold" fill="#0284c7">L = 2 mH</text>
+            <text x="135" y="56" text-anchor="middle" font-size="11" fill="#dc2626">i_L(t) →</text>
+
+            <!-- Nodo salida -->
+            <line x1="175" y1="40" x2="290" y2="40" stroke="#0f172a" stroke-width="2"/>
+            <circle cx="220" cy="40" r="3.5" fill="#0f172a"/>
+
+            <!-- Capacitor C -->
+            <line x1="220" y1="40" x2="220" y2="92" stroke="#0f172a" stroke-width="2"/>
+            <line x1="202" y1="92" x2="238" y2="92" stroke="#0284c7" stroke-width="3"/>
+            <line x1="202" y1="104" x2="238" y2="104" stroke="#0284c7" stroke-width="3"/>
+            <line x1="220" y1="104" x2="220" y2="170" stroke="#0f172a" stroke-width="2"/>
+            <text x="180" y="102" text-anchor="end" font-size="11" font-weight="bold" fill="#0284c7">C = 500 µF</text>
+
+            <!-- Resistencia R -->
+            <line x1="290" y1="40" x2="290" y2="70" stroke="#0f172a" stroke-width="2"/>
+            <rect x="280" y="70" width="20" height="55" fill="#fef3c7" stroke="#d97706" stroke-width="2"/>
+            <line x1="290" y1="125" x2="290" y2="170" stroke="#0f172a" stroke-width="2"/>
+            <text x="312" y="102" font-size="11" font-weight="bold" fill="#b45309">R</text>
+            <text x="260" y="150" font-size="11" font-weight="bold" fill="#059669">+ v_C(t) -</text>
+
+            <!-- Tierra común -->
+            <polyline points="45,127 45,170 290,170" fill="none" stroke="#0f172a" stroke-width="2"/>
+          </svg>
+        </div>
+
+        <!-- Ecuaciones Diferenciales Paso a Paso -->
+        <div class="lg:col-span-2 bg-white p-6 rounded-xl shadow-sm border border-slate-200 space-y-4">
+          <div class="math-box p-4 rounded-r-lg">
+            <h4 class="font-bold text-slate-900 text-sm uppercase mb-1">Paso 1: Ley de Voltajes de Kirchhoff (LVK) en la malla de entrada</h4>
+            <p class="text-sm text-slate-600 mb-2">La tensión aplicada $u(t)$ equivale a la caída en el inductor más la tensión del capacitor:</p>
+            $$u(t) = Lrac{di_L(t)}{dt} + v_C(t) \implies rac{di_L(t)}{dt} = -rac{1}{L}v_C(t) + rac{1}{L}u(t)$$
+          </div>
+
+          <div class="math-box p-4 rounded-r-lg">
+            <h4 class="font-bold text-slate-900 text-sm uppercase mb-1">Paso 2: Ley de Corrientes de Kirchhoff (LCK) en el nodo de salida</h4>
+            <p class="text-sm text-slate-600 mb-2">La corriente del inductor se divide entre el capacitor y la resistencia de carga $R$:</p>
+            $$i_L(t) = Crac{dv_C(t)}{dt} + rac{v_C(t)}{R} \implies rac{dv_C(t)}{dt} = rac{1}{C}i_L(t) - rac{1}{RC}v_C(t)$$
+          </div>
+
+          <div class="p-4 bg-sky-50 border border-sky-200 rounded-lg text-sm text-slate-700">
+            <strong>Justificación de Parámetros Nominales:</strong> Con $L = 2	ext{ mH}$, $C = 500	ext{ }\mu	ext{F}$ y $R = 10	ext{ }\Omega$, la frecuencia natural del filtro es $\omega_n = rac{1}{\sqrt{LC}} = 1000	ext{ rad/s}$ ($f_c pprox 159.15	ext{ Hz}$), logrando filtrar el rizado PWM de alta frecuencia ($>20	ext{ kHz}$), pero presentando en lazo abierto un bajo amortiguamiento ($\zeta = 0.1$) que exige control realimentado.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECCIÓN 3: ESPACIO DE ESTADOS Y DIAGRAMA DE INTEGRADORES -->
+    <section id="sec3" class="scroll-mt-20">
+      <div class="flex items-center gap-3 mb-6">
+        <span class="w-9 h-9 rounded-lg bg-sky-600 text-white font-bold flex items-center justify-center">3</span>
+        <h3 class="text-2xl font-bold text-slate-900">Formulación en Espacio de Estados y Función de Transferencia</h3>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <!-- Matrices A, B, C, D -->
+        <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 space-y-4">
+          <h4 class="font-bold text-slate-800">Representación Matricial $\dot{\mathbf{x}} = \mathbf{A}\mathbf{x} + \mathbf{B}u$, $\;y = \mathbf{C}\mathbf{x} + \mathbf{D}u$</h4>
+          <p class="text-sm text-slate-600">
+            Definiendo el vector de estados $\mathbf{x}(t) = egin{bmatrix} i_L(t) & v_C(t) \end{bmatrix}^T$ y la salida $y(t) = v_C(t)$:
+          </p>
+          <div class="overflow-x-auto py-2">
+            $$egin{bmatrix} \dot{i}_L \ \dot{v}_C \end{bmatrix} = egin{bmatrix} 0 & -rac{1}{L} \ rac{1}{C} & -rac{1}{RC} \end{bmatrix} egin{bmatrix} i_L \ v_C \end{bmatrix} + egin{bmatrix} rac{1}{L} \ 0 \end{bmatrix} u(t) = egin{bmatrix} 0 & -500 \ 2000 & -200 \end{bmatrix} egin{bmatrix} i_L \ v_C \end{bmatrix} + egin{bmatrix} 500 \ 0 \end{bmatrix} u(t)$$
+            $$y(t) = egin{bmatrix} 0 & 1 \end{bmatrix} egin{bmatrix} i_L \ v_C \end{bmatrix} + [0]u(t)$$
+          </div>
+          <div class="math-box p-4 rounded-r-lg">
+            <h5 class="font-bold text-xs uppercase text-slate-500 mb-1">Función de Transferencia Equivalente $G(s) = \mathbf{C}(s\mathbf{I}-\mathbf{A})^{-1}\mathbf{B} + \mathbf{D}$</h5>
+            $$G(s) = rac{\dfrac{1}{LC}}{s^2 + \dfrac{1}{RC}s + \dfrac{1}{LC}} = rac{1\,000\,000}{s^2 + 200s + 1\,000\,000}$$
+          </div>
+        </div>
+
+        <!-- Diagrama de Estado con Integradores s^-1 en SVG -->
+        <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 flex flex-col justify-between">
+          <h4 class="font-bold text-slate-800 mb-2">Diagrama de Simulación en Espacio de Estados (Bloques $s^{-1}$)</h4>
+          <svg viewBox="0 0 600 280" class="w-full h-auto">
+            <!-- Entrada u(s) -->
+            <text x="10" y="95" font-size="12" font-weight="bold" fill="#0f172a">U(s)</text>
+            <line x1="40" y1="90" x2="75" y2="90" stroke="#0f172a" stroke-width="2" marker-end="url(#arrow)"/>
+
+            <!-- Ganancia 1/L -->
+            <polygon points="75,72 115,90 75,108" fill="#e0f2fe" stroke="#0284c7" stroke-width="2"/>
+            <text x="89" y="94" text-anchor="middle" font-size="10" font-weight="bold" fill="#0284c7">1/L</text>
+            <line x1="115" y1="90" x2="148" y2="90" stroke="#0f172a" stroke-width="2" marker-end="url(#arrow)"/>
+
+            <!-- Suma 1 -->
+            <circle cx="164" cy="90" r="14" fill="#f1f5f9" stroke="#0f172a" stroke-width="2"/>
+            <text x="155" y="88" font-size="11" font-weight="bold">+</text>
+            <text x="163" y="102" font-size="13" font-weight="bold" fill="#dc2626">-</text>
+
+            <!-- di_L/dt -> Integrador 1 -->
+            <line x1="178" y1="90" x2="215" y2="90" stroke="#0f172a" stroke-width="2" marker-end="url(#arrow)"/>
+            <text x="184" y="81" font-size="10" fill="#475569">s·I_L</text>
+            <rect x="218" y="68" width="48" height="44" rx="6" fill="#0284c7" stroke="#0369a1" stroke-width="2"/>
+            <text x="242" y="95" text-anchor="middle" font-size="13" font-weight="bold" fill="#ffffff">s⁻¹</text>
+
+            <!-- I_L(s) -> Ganancia 1/C -->
+            <line x1="266" y1="90" x2="315" y2="90" stroke="#0f172a" stroke-width="2" marker-end="url(#arrow)"/>
+            <text x="275" y="81" font-size="10" font-weight="bold" fill="#0284c7">I_L(s)</text>
+            <polygon points="315,72 355,90 315,108" fill="#e0f2fe" stroke="#0284c7" stroke-width="2"/>
+            <text x="329" y="94" text-anchor="middle" font-size="10" font-weight="bold" fill="#0284c7">1/C</text>
+            <line x1="355" y1="90" x2="388" y2="90" stroke="#0f172a" stroke-width="2" marker-end="url(#arrow)"/>
+
+            <!-- Suma 2 -->
+            <circle cx="404" cy="90" r="14" fill="#f1f5f9" stroke="#0f172a" stroke-width="2"/>
+            <text x="395" y="88" font-size="11" font-weight="bold">+</text>
+            <text x="403" y="102" font-size="13" font-weight="bold" fill="#dc2626">-</text>
+
+            <!-- dv_C/dt -> Integrador 2 -->
+            <line x1="418" y1="90" x2="452" y2="90" stroke="#0f172a" stroke-width="2" marker-end="url(#arrow)"/>
+            <text x="421" y="81" font-size="10" fill="#475569">s·V_C</text>
+            <rect x="455" y="68" width="48" height="44" rx="6" fill="#059669" stroke="#047857" stroke-width="2"/>
+            <text x="479" y="95" text-anchor="middle" font-size="13" font-weight="bold" fill="#ffffff">s⁻¹</text>
+
+            <!-- Salida V_C(s) -->
+            <line x1="503" y1="90" x2="585" y2="90" stroke="#0f172a" stroke-width="2" marker-end="url(#arrow)"/>
+            <text x="530" y="81" font-size="11" font-weight="bold" fill="#059669">V_C(s) = Y(s)</text>
+
+            <!-- Realimentación interna -1/(RC) -->
+            <polyline points="525,90 525,165 480,165" fill="none" stroke="#0f172a" stroke-width="1.8" marker-end="url(#arrow)"/>
+            <polygon points="480,148 440,165 480,182" fill="#fee2e2" stroke="#dc2626" stroke-width="1.8"/>
+            <text x="466" y="169" text-anchor="middle" font-size="9" font-weight="bold" fill="#dc2626">1/RC</text>
+            <polyline points="440,165 404,165 404,106" fill="none" stroke="#0f172a" stroke-width="1.8" marker-end="url(#arrow)"/>
+
+            <!-- Realimentación externa -1/L -->
+            <polyline points="525,165 525,235 335,235" fill="none" stroke="#0f172a" stroke-width="1.8" marker-end="url(#arrow)"/>
+            <polygon points="335,218 295,235 335,252" fill="#fee2e2" stroke="#dc2626" stroke-width="1.8"/>
+            <text x="321" y="239" text-anchor="middle" font-size="10" font-weight="bold" fill="#dc2626">1/L</text>
+            <polyline points="295,235 164,235 164,106" fill="none" stroke="#0f172a" stroke-width="1.8" marker-end="url(#arrow)"/>
+          </svg>
+          <p class="text-xs text-slate-500 text-center">
+            Estructura de doble integrador acoplado: la corriente $i_L$ integra la diferencia entre entrada y tensión de salida, mientras $v_C$ integra la corriente neta del capacitor.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECCIÓN 4: SIMULADOR INTERACTIVO EN TIEMPO REAL + VALIDACIÓN GNU OCTAVE -->
+    <section id="sec4" class="scroll-mt-20">
+      <div class="flex items-center gap-3 mb-6">
+        <span class="w-9 h-9 rounded-lg bg-sky-600 text-white font-bold flex items-center justify-center">4</span>
+        <h3 class="text-2xl font-bold text-slate-900">Simulador Web Interactivo & Validación en GNU Octave</h3>
+      </div>
+
+      <!-- Panel Simulador Interactivo -->
+      <div class="bg-white p-6 rounded-xl shadow-md border border-slate-200 mb-8">
+        <div class="flex flex-wrap items-center justify-between gap-4 border-b border-slate-200 pb-4 mb-6">
+          <div>
+            <h4 class="text-lg font-bold text-slate-900">Laboratorio Virtual en Tiempo Real (Bus DC = 48 V)</h4>
+            <p class="text-sm text-slate-600">Modifica los parámetros físicos del filtro RLC y las ganancias del controlador PID para observar la respuesta al escalón y el desplazamiento de polos.</p>
+          </div>
+          <button id="resetBtn" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white text-xs font-semibold rounded-lg transition">
+            Restaurar Valores Nominales
+          </button>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          <!-- Controles Sliders -->
+          <div class="lg:col-span-4 space-y-4 bg-slate-50 p-4 rounded-xl border border-slate-200">
+            <h5 class="text-xs font-bold uppercase tracking-wider text-sky-700">Parámetros Físicos de la Planta</h5>
+            
+            <div>
+              <div class="flex justify-between text-xs font-semibold mb-1">
+                <span>Inductancia $L$ [mH]</span>
+                <span id="valL" class="text-sky-700">2.0 mH</span>
+              </div>
+              <input type="range" id="sliderL" min="0.5" max="10" step="0.1" value="2.0" class="w-full slider-accent">
+            </div>
+
+            <div>
+              <div class="flex justify-between text-xs font-semibold mb-1">
+                <span>Capacitancia $C$ [µF]</span>
+                <span id="valC" class="text-sky-700">500 µF</span>
+              </div>
+              <input type="range" id="sliderC" min="100" max="2000" step="50" value="500" class="w-full slider-accent">
+            </div>
+
+            <div>
+              <div class="flex justify-between text-xs font-semibold mb-1">
+                <span>Carga Resistiva $R$ [Ω]</span>
+                <span id="valR" class="text-sky-700">10 Ω</span>
+              </div>
+              <input type="range" id="sliderR" min="2" max="50" step="1" value="10" class="w-full slider-accent">
+            </div>
+
+            <hr class="border-slate-300">
+            <h5 class="text-xs font-bold uppercase tracking-wider text-emerald-700">Sintonización Controlador PID</h5>
+
+            <div>
+              <div class="flex justify-between text-xs font-semibold mb-1">
+                <span>Ganancia Proporcional $K_p$</span>
+                <span id="valKp" class="text-emerald-700">1.20</span>
+              </div>
+              <input type="range" id="sliderKp" min="0.1" max="5.0" step="0.1" value="1.2" class="w-full slider-accent">
+            </div>
+
+            <div>
+              <div class="flex justify-between text-xs font-semibold mb-1">
+                <span>Ganancia Integral $K_i$</span>
+                <span id="valKi" class="text-emerald-700">400</span>
+              </div>
+              <input type="range" id="sliderKi" min="0" max="1500" step="25" value="400" class="w-full slider-accent">
+            </div>
+
+            <div>
+              <div class="flex justify-between text-xs font-semibold mb-1">
+                <span>Ganancia Derivativa $K_d$</span>
+                <span id="valKd" class="text-emerald-700">0.0015</span>
+              </div>
+              <input type="range" id="sliderKd" min="0" max="0.005" step="0.0001" value="0.0015" class="w-full slider-accent">
+            </div>
+
+            <!-- Tarjetas de Métricas Dinámicas -->
+            <div class="grid grid-cols-2 gap-2 pt-2 text-xs">
+              <div class="p-2.5 bg-red-50 border border-red-200 rounded-lg">
+                <span class="block text-red-700 font-semibold">Sobreimpulso L. Abierto</span>
+                <span id="metricOsLA" class="text-base font-bold text-red-900">72.9%</span>
+              </div>
+              <div class="p-2.5 bg-emerald-50 border border-emerald-200 rounded-lg">
+                <span class="block text-emerald-700 font-semibold">Sobreimpulso L. Cerrado</span>
+                <span id="metricOsLC" class="text-base font-bold text-emerald-900">0.0%</span>
+              </div>
+              <div class="col-span-2 p-2.5 bg-white border border-slate-200 rounded-lg">
+                <span class="block text-slate-500 font-semibold">Polos Lazo Abierto ($\lambda_{1,2}$ de $\mathbf{A}$)</span>
+                <span id="metricPolesLA" class="font-mono text-xs font-bold text-slate-800">-100.00 ± j994.99 rad/s</span>
+              </div>
+              <div class="col-span-2 p-2.5 bg-white border border-slate-200 rounded-lg">
+                <span class="block text-slate-500 font-semibold">Estado de Estabilidad</span>
+                <span id="metricStability" class="font-bold text-emerald-600">ESTABLE (Semiplano Izquierdo)</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Gráficas Interactivas Canvas -->
+          <div class="lg:col-span-8 space-y-4">
+            <div>
+              <div class="flex justify-between items-center mb-1">
+                <span class="text-xs font-bold uppercase text-slate-600">Respuesta al Escalón $v_C(t)$ [0 – 60 ms]</span>
+                <div class="flex gap-4 text-xs">
+                  <span class="flex items-center gap-1"><span class="w-3 h-0.5 bg-red-600 inline-block"></span> Lazo Abierto</span>
+                  <span class="flex items-center gap-1"><span class="w-3 h-1 bg-sky-600 inline-block"></span> Lazo Cerrado (PID)</span>
+                  <span class="flex items-center gap-1"><span class="w-3 h-0.5 bg-slate-400 inline-block"></span> Ref 48V</span>
+                </div>
+              </div>
+              <canvas id="stepCanvas" width="720" height="270" class="w-full h-auto"></canvas>
+            </div>
+
+            <div>
+              <div class="flex justify-between items-center mb-1">
+                <span class="text-xs font-bold uppercase text-slate-600">Mapa de Polos en el Plano Complejo $s = \sigma + j\omega$</span>
+                <span class="text-xs text-slate-500">✕ Lazo Abierto (Rojo) · ✕ Lazo Cerrado (Azul)</span>
+              </div>
+              <canvas id="poleCanvas" width="720" height="210" class="w-full h-auto"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Validación Oficial en GNU Octave -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div class="bg-slate-900 text-slate-100 p-6 rounded-xl shadow-sm overflow-x-auto">
+          <div class="flex items-center justify-between mb-3">
+            <span class="text-xs font-bold uppercase tracking-wider text-sky-400">Script Oficial GNU Octave (Proyect.m)</span>
+            <span class="text-xs bg-slate-800 px-2 py-1 rounded text-slate-300">pkg load control</span>
+          </div>
+<pre class="text-xs font-mono leading-relaxed text-emerald-300"><code>% PROYECTO ANÁLISIS DE SISTEMAS (ELEC-5308) - TEMA 8
+clear all; close all; clc;
+pkg load control;
+
+L = 2e-3; C = 500e-6; R = 10; V_ref = 48;
+
+% Espacio de Estados
+A = [0, -1/L; 1/C, -1/(R*C)];
+B = [1/L; 0];
+C_mat = [0, 1];
+D = 0;
+
+sys_ss = ss(A, B, C_mat, D);
+G_s = tf(sys_ss);
+polos_LA = eig(A)
+
+% Controlador PID en Lazo Cerrado
+Kp = 1.2; Ki = 400; Kd = 0.0015;
+s = tf('s');
+C_s = Kp + Ki/s + Kd*s;
+T_s = feedback(C_s * G_s, 1);
+
+polos_LC = pole(T_s)
+ceros_LC = zero(T_s)
+
+t = 0:0.0001:0.06;
+[y_LA, t_LA] = step(V_ref * G_s, t);
+[y_LC, t_LC] = step(V_ref * T_s, t);</code></pre>
+        </div>
+
+        <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 space-y-4">
+          <h4 class="text-sm font-bold uppercase tracking-wider text-slate-600">Capturas de Comprobación Experimental (GNU Octave)</h4>
+          <p class="text-xs text-slate-500">
+            Resultados generados directamente en GNU Octave-11.3.0 validando la respuesta transitoria y la ubicación de polos y ceros.
+          </p>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <figure class="border border-slate-200 rounded-lg p-2 bg-slate-50">
+              <img src="figura1_escalon.png" alt="Gráfica GNU Octave Respuesta al Escalón" class="w-full h-auto rounded">
+              <figcaption class="text-xs text-center text-slate-600 mt-2 font-medium">Fig. 1: Respuesta al Escalón (Octave)</figcaption>
+            </figure>
+            <figure class="border border-slate-200 rounded-lg p-2 bg-slate-50">
+              <img src="figura2_polos.png" alt="Gráfica GNU Octave Mapa de Polos y Ceros" class="w-full h-auto rounded">
+              <figcaption class="text-xs text-center text-slate-600 mt-2 font-medium">Fig. 2: Mapa de Polos y Ceros (Octave)</figcaption>
+            </figure>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECCIÓN 5: ANÁLISIS DE ESTABILIDAD Y CONCLUSIONES -->
+    <section id="sec5" class="scroll-mt-20">
+      <div class="flex items-center gap-3 mb-6">
+        <span class="w-9 h-9 rounded-lg bg-sky-600 text-white font-bold flex items-center justify-center">5</span>
+        <h3 class="text-2xl font-bold text-slate-900">Análisis de Estabilidad y Conclusiones de Ingeniería</h3>
+      </div>
+
+      <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 space-y-6">
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm text-left border-collapse">
+            <thead>
+              <tr class="bg-slate-100 text-slate-800 border-b border-slate-300">
+                <th class="p-3 font-bold">Métrica de Desempeño</th>
+                <th class="p-3 font-bold text-red-700">Lazo Abierto (Sin Control)</th>
+                <th class="p-3 font-bold text-emerald-700">Lazo Cerrado (Controlador PID)</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-200">
+              <tr>
+                <td class="p-3 font-semibold">Polos / Autovalores</td>
+                <td class="p-3 font-mono text-xs">$s_{1,2} = -100.00 \pm j\,994.99	ext{ rad/s}$</td>
+                <td class="p-3 font-mono text-xs">$p_{1,2} = -743.85 \pm j\,1153.63$, $p_3 = -212.30	ext{ rad/s}$</td>
+              </tr>
+              <tr>
+                <td class="p-3 font-semibold">Ceros del Sistema</td>
+                <td class="p-3">Ninguno</td>
+                <td class="p-3 font-mono text-xs">$z_{1,2} = -400.00 \pm j\,326.60	ext{ rad/s}$</td>
+              </tr>
+              <tr>
+                <td class="p-3 font-semibold">Teorema del Valor Final ($V_{	ext{ref}} = 48	ext{ V}$)</td>
+                <td class="p-3">$\lim_{s	o 0} srac{48}{s}G(s) = 48.00	ext{ V}$ (sensible a carga)</td>
+                <td class="p-3">$\lim_{s	o 0} srac{48}{s}T(s) = 48.00	ext{ V}$ ($e_{ss} = 0	ext{ V}$ garantizado)</td>
+              </tr>
+              <tr>
+                <td class="p-3 font-semibold">Sobreimpulso Máximo ($M_p$)</td>
+                <td class="p-3 text-red-600 font-bold">72.9% (Pico peligroso de 82.99 V)</td>
+                <td class="p-3 text-emerald-600 font-bold">0.0% (Sin sobretensión sobre 48 V)</td>
+              </tr>
+              <tr>
+                <td class="p-3 font-semibold">Tiempo de Establecimiento ($t_s$)</td>
+                <td class="p-3">$pprox 40	ext{ ms}$ con oscilación sostenida</td>
+                <td class="p-3">$pprox 18	ext{ ms}$ (55% más rápido)</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2 text-sm text-slate-700">
+          <div class="p-4 bg-slate-50 rounded-lg border border-slate-200">
+            <h4 class="font-bold text-slate-900 mb-2">1. Interpretación Física del Desplazamiento de Polos</h4>
+            <p>
+              En lazo abierto, los autovalores de la matriz $\mathbf{A}$ tienen una parte real pequeña ($\sigma = -100	ext{ rad/s}$), lo que produce un intercambio resonante de energía entre el inductor y el capacitor que genera sobretensiones de hasta $83	ext{ V}$. Al cerrar el lazo con acción derivativa e integral, los polos se desplazan profundamente hacia el semiplano izquierdo ($\sigma = -743.85	ext{ rad/s}$), introduciendo amortiguamiento activo sin pérdidas disipativas en resistencias físicas.
+            </p>
+          </div>
+          <div class="p-4 bg-slate-50 rounded-lg border border-slate-200">
+            <h4 class="font-bold text-slate-900 mb-2">2. Impacto en la Confiabilidad de la Microred Solar</h4>
+            <p>
+              La acción integral ($K_i/s$) asegura mediante el Teorema del Valor Final que la tensión en el bus DC permanezca clavada en exactamente $48.00	ext{ V}$ incluso cuando la irradiancia solar fluctúa o entran nuevas cargas en paralelo, protegiendo inversores, baterías y equipos electrónicos sensibles.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="bg-slate-900 text-slate-400 text-xs py-6 text-center border-t border-slate-800">
+    <p>Universidad Hispanoamericana · Ingeniería Electrónica · Curso: Análisis de Sistemas (ELEC-5308) · 2026</p>
+  </footer>
+
+  <!-- Motor de Simulación Numérica RK4 en JavaScript -->
+  <script>
+    const sliderL = document.getElementById('sliderL');
+    const sliderC = document.getElementById('sliderC');
+    const sliderR = document.getElementById('sliderR');
+    const sliderKp = document.getElementById('sliderKp');
+    const sliderKi = document.getElementById('sliderKi');
+    const sliderKd = document.getElementById('sliderKd');
+
+    const stepCanvas = document.getElementById('stepCanvas');
+    const stepCtx = stepCanvas.getContext('2d');
+    const poleCanvas = document.getElementById('poleCanvas');
+    const poleCtx = poleCanvas.getContext('2d');
+
+    function simulate() {
+      const L = parseFloat(sliderL.value) * 1e-3;
+      const C = parseFloat(sliderC.value) * 1e-6;
+      const R = parseFloat(sliderR.value);
+      const Kp = parseFloat(sliderKp.value);
+      const Ki = parseFloat(sliderKi.value);
+      const Kd = parseFloat(sliderKd.value);
+      const Vref = 48.0;
+
+      document.getElementById('valL').textContent = parseFloat(sliderL.value).toFixed(1) + ' mH';
+      document.getElementById('valC').textContent = sliderC.value + ' µF';
+      document.getElementById('valR').textContent = sliderR.value + ' Ω';
+      document.getElementById('valKp').textContent = Kp.toFixed(2);
+      document.getElementById('valKi').textContent = sliderKi.value;
+      document.getElementById('valKd').textContent = Kd.toFixed(4);
+
+      // Integración numérica RK4 para t = 0 a 60 ms
+      const dt = 0.00005; // 50 us
+      const tMax = 0.06;
+      const steps = Math.floor(tMax / dt);
+
+      // Estados Lazo Abierto: x1 = iL, x2 = vC
+      let x1_la = 0, x2_la = 0;
+      // Estados Lazo Cerrado: x1 = iL, x2 = vC, xi = integral del error
+      let x1_lc = 0, x2_lc = 0, xi_lc = 0;
+
+      const dataLA = [];
+      const dataLC = [];
+      let maxLA = 0, maxLC = 0;
+
+      for (let i = 0; i <= steps; i++) {
+        const t = i * dt;
+        if (i % 4 === 0) {
+          dataLA.push({ t: t * 1000, y: x2_la });
+          dataLC.push({ t: t * 1000, y: x2_lc });
+        }
+        if (x2_la > maxLA) maxLA = x2_la;
+        if (x2_lc > maxLC) maxLC = x2_lc;
+
+        // Lazo Abierto (u = Vref)
+        const f_la = (iL, vC) => [(-vC + Vref) / L, (iL - vC / R) / C];
+        const k1 = f_la(x1_la, x2_la);
+        const k2 = f_la(x1_la + 0.5*dt*k1[0], x2_la + 0.5*dt*k1[1]);
+        const k3 = f_la(x1_la + 0.5*dt*k2[0], x2_la + 0.5*dt*k2[1]);
+        const k4 = f_la(x1_la + dt*k3[0], x2_la + dt*k3[1]);
+        x1_la += (dt/6)*(k1[0] + 2*k2[0] + 2*k3[0] + k4[0]);
+        x2_la += (dt/6)*(k1[1] + 2*k2[1] + 2*k3[1] + k4[1]);
+
+        // Lazo Cerrado PID (de/dt = -dvC/dt = -(iL - vC/R)/C)
+        const f_lc = (iL, vC, xi) => {
+          const e = Vref - vC;
+          const de = -(iL - vC / R) / C;
+          const u = Kp * e + Ki * xi + Kd * de;
+          return [(-vC + u) / L, (iL - vC / R) / C, e];
+        };
+        const c1 = f_lc(x1_lc, x2_lc, xi_lc);
+        const c2 = f_lc(x1_lc + 0.5*dt*c1[0], x2_lc + 0.5*dt*c1[1], xi_lc + 0.5*dt*c1[2]);
+        const c3 = f_lc(x1_lc + 0.5*dt*c2[0], x2_lc + 0.5*dt*c2[1], xi_lc + 0.5*dt*c2[2]);
+        const c4 = f_lc(x1_lc + dt*c3[0], x2_lc + dt*c3[1], xi_lc + dt*c3[2]);
+        x1_lc += (dt/6)*(c1[0] + 2*c2[0] + 2*c3[0] + c4[0]);
+        x2_lc += (dt/6)*(c1[1] + 2*c2[1] + 2*c3[1] + c4[1]);
+        xi_lc += (dt/6)*(c1[2] + 2*c2[2] + 2*c3[2] + c4[2]);
+      }
+
+      const osLA = Math.max(0, ((maxLA - Vref) / Vref) * 100);
+      const osLC = Math.max(0, ((maxLC - Vref) / Vref) * 100);
+      document.getElementById('metricOsLA').textContent = osLA.toFixed(1) + '%';
+      document.getElementById('metricOsLC').textContent = osLC.toFixed(1) + '%';
+
+      // Polos Lazo Abierto: s^2 + (1/RC)s + 1/LC = 0
+      const b_la = 1 / (R * C);
+      const c_la = 1 / (L * C);
+      const disc = b_la * b_la - 4 * c_la;
+      let polesLA = [];
+      if (disc >= 0) {
+        const p1 = (-b_la + Math.sqrt(disc)) / 2;
+        const p2 = (-b_la - Math.sqrt(disc)) / 2;
+        polesLA = [{ re: p1, im: 0 }, { re: p2, im: 0 }];
+        document.getElementById('metricPolesLA').textContent = `${p1.toFixed(1)}, ${p2.toFixed(1)} rad/s`;
+      } else {
+        const re = -b_la / 2;
+        const im = Math.sqrt(-disc) / 2;
+        polesLA = [{ re: re, im: im }, { re: re, im: -im }];
+        document.getElementById('metricPolesLA').textContent = `${re.toFixed(2)} ± j${im.toFixed(2)} rad/s`;
+      }
+
+      // Polos Lazo Cerrado (Cúbica: s^3 + a2*s^2 + a1*s + a0 = 0)
+      const a2 = (1 / (R * C)) + (Kd / (L * C));
+      const a1 = (1 + Kp) / (L * C);
+      const a0 = Ki / (L * C);
+      const stable = (a2 > 0 && a1 > 0 && a0 > 0 && (a2 * a1 > a0));
+      const stabEl = document.getElementById('metricStability');
+      if (stable) {
+        stabEl.textContent = 'ESTABLE (Semiplano Izquierdo)';
+        stabEl.className = 'font-bold text-emerald-600';
+      } else {
+        stabEl.textContent = 'INESTABLE (Revisar Ganancias PID)';
+        stabEl.className = 'font-bold text-red-600';
+      }
+
+      const polesLC = solveCubic(a2, a1, a0);
+      drawStepChart(dataLA, dataLC, Vref);
+      drawPoleChart(polesLA, polesLC);
+    }
+
+    // Método de Durand-Kerner para raíces de s^3 + a2*s^2 + a1*s + a0 = 0
+    function solveCubic(a2, a1, a0) {
+      let roots = [
+        { re: -a2 / 3, im: 0 },
+        { re: -a2 / 3, im: 500 },
+        { re: -a2 / 3, im: -500 }
+      ];
+      const evalP = (z) => {
+        // z^3 + a2*z^2 + a1*z + a0
+        const z2 = { re: z.re*z.re - z.im*z.im, im: 2*z.re*z.im };
+        const z3 = { re: z2.re*z.re - z2.im*z.im, im: z2.re*z.im + z2.im*z.re };
+        return {
+          re: z3.re + a2*z2.re + a1*z.re + a0,
+          im: z3.im + a2*z2.im + a1*z.im
+        };
+      };
+      const cDiv = (a, b) => {
+        const d = b.re*b.re + b.im*b.im || 1e-12;
+        return { re: (a.re*b.re + a.im*b.im)/d, im: (a.im*b.re - a.re*b.im)/d };
+      };
+      const cMul = (a, b) => ({ re: a.re*b.re - a.im*b.im, im: a.re*b.im + a.im*b.re });
+      const cSub = (a, b) => ({ re: a.re - b.re, im: a.im - b.im });
+
+      for (let iter = 0; iter < 60; iter++) {
+        for (let i = 0; i < 3; i++) {
+          let denom = { re: 1, im: 0 };
+          for (let j = 0; j < 3; j++) {
+            if (i !== j) denom = cMul(denom, cSub(roots[i], roots[j]));
+          }
+          const delta = cDiv(evalP(roots[i]), denom);
+          roots[i] = cSub(roots[i], delta);
+        }
+      }
+      return roots;
+    }
+
+    function drawStepChart(dataLA, dataLC, Vref) {
+      const w = stepCanvas.width, h = stepCanvas.height;
+      const pad = { l: 48, r: 20, t: 20, b: 32 };
+      stepCtx.clearRect(0, 0, w, h);
+
+      const yMax = 100;
+      const toX = (t) => pad.l + (t / 60) * (w - pad.l - pad.r);
+      const toY = (y) => h - pad.b - (Math.min(Math.max(y, 0), yMax) / yMax) * (h - pad.t - pad.b);
+
+      // Grilla
+      stepCtx.strokeStyle = '#e2e8f0';
+      stepCtx.lineWidth = 1;
+      stepCtx.font = '11px sans-serif';
+      stepCtx.fillStyle = '#64748b';
+      for (let v = 0; v <= 100; v += 20) {
+        const y = toY(v);
+        stepCtx.beginPath(); stepCtx.moveTo(pad.l, y); stepCtx.lineTo(w - pad.r, y); stepCtx.stroke();
+        stepCtx.fillText(v + 'V', 10, y + 4);
+      }
+      for (let t = 0; t <= 60; t += 10) {
+        const x = toX(t);
+        stepCtx.beginPath(); stepCtx.moveTo(x, pad.t); stepCtx.lineTo(x, h - pad.b); stepCtx.stroke();
+        stepCtx.fillText(t + 'ms', x - 12, h - 10);
+      }
+
+      // Línea Referencia 48V
+      stepCtx.strokeStyle = '#94a3b8';
+      stepCtx.setLineDash([4, 4]);
+      stepCtx.beginPath();
+      stepCtx.moveTo(pad.l, toY(Vref));
+      stepCtx.lineTo(w - pad.r, toY(Vref));
+      stepCtx.stroke();
+      stepCtx.setLineDash([]);
+
+      // Curva Lazo Abierto
+      stepCtx.strokeStyle = '#dc2626';
+      stepCtx.lineWidth = 2;
+      stepCtx.setLineDash([6, 4]);
+      stepCtx.beginPath();
+      dataLA.forEach((p, idx) => idx === 0 ? stepCtx.moveTo(toX(p.t), toY(p.y)) : stepCtx.lineTo(toX(p.t), toY(p.y)));
+      stepCtx.stroke();
+      stepCtx.setLineDash([]);
+
+      // Curva Lazo Cerrado
+      stepCtx.strokeStyle = '#0284c7';
+      stepCtx.lineWidth = 2.8;
+      stepCtx.beginPath();
+      dataLC.forEach((p, idx) => idx === 0 ? stepCtx.moveTo(toX(p.t), toY(p.y)) : stepCtx.lineTo(toX(p.t), toY(p.y)));
+      stepCtx.stroke();
+    }
+
+    function drawPoleChart(polesLA, polesLC) {
+      const w = poleCanvas.width, h = poleCanvas.height;
+      const pad = { l: 55, r: 30, t: 18, b: 28 };
+      poleCtx.clearRect(0, 0, w, h);
+
+      const reMin = -1200, reMax = 200;
+      const imMax = 2000;
+      const toX = (re) => pad.l + ((re - reMin) / (reMax - reMin)) * (w - pad.l - pad.r);
+      const toY = (im) => (h / 2) - (im / imMax) * ((h - pad.t - pad.b) / 2);
+
+      // Grilla y Ejes
+      poleCtx.strokeStyle = '#e2e8f0';
+      poleCtx.lineWidth = 1;
+      poleCtx.font = '10px sans-serif';
+      poleCtx.fillStyle = '#64748b';
+
+      for (let r = -1000; r <= 200; r += 200) {
+        const x = toX(r);
+        poleCtx.beginPath(); poleCtx.moveTo(x, pad.t); poleCtx.lineTo(x, h - pad.b); poleCtx.stroke();
+        poleCtx.fillText(r, x - 12, h - 8);
+      }
+
+      // Eje Imaginario (sigma = 0)
+      const xZero = toX(0);
+      poleCtx.strokeStyle = '#64748b';
+      poleCtx.lineWidth = 1.5;
+      poleCtx.beginPath(); poleCtx.moveTo(xZero, pad.t); poleCtx.lineTo(xZero, h - pad.b); poleCtx.stroke();
+
+      // Eje Real (j*omega = 0)
+      const yZero = toY(0);
+      poleCtx.beginPath(); poleCtx.moveTo(pad.l, yZero); poleCtx.lineTo(w - pad.r, yZero); poleCtx.stroke();
+
+      const drawCross = (re, im, color) => {
+        const x = toX(Math.max(reMin, Math.min(reMax, re)));
+        const y = toY(Math.max(-imMax, Math.min(imMax, im)));
+        poleCtx.strokeStyle = color;
+        poleCtx.lineWidth = 2.5;
+        poleCtx.beginPath();
+        poleCtx.moveTo(x - 6, y - 6); poleCtx.lineTo(x + 6, y + 6);
+        poleCtx.moveTo(x + 6, y - 6); poleCtx.lineTo(x - 6, y + 6);
+        poleCtx.stroke();
+      };
+
+      polesLA.forEach(p => drawCross(p.re, p.im, '#dc2626'));
+      polesLC.forEach(p => drawCross(p.re, p.im, '#0284c7'));
+    }
+
+    [sliderL, sliderC, sliderR, sliderKp, sliderKi, sliderKd].forEach(el => {
+      el.addEventListener('input', simulate);
+    });
+
+    document.getElementById('resetBtn').addEventListener('click', () => {
+      sliderL.value = 2.0;
+      sliderC.value = 500;
+      sliderR.value = 10;
+      sliderKp.value = 1.2;
+      sliderKi.value = 400;
+      sliderKd.value = 0.0015;
+      simulate();
+    });
+
+    simulate();
+  </script>
+</body>
+</html>
