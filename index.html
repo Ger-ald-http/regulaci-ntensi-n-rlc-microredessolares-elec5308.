@@ -82,14 +82,14 @@
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
         <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 space-y-4">
           <p class="text-slate-700 leading-relaxed">
-            En una <strong>microred solar fotovoltaica de corriente directa (DC)</strong>, la generación primaria varía constantemente debido a cambios en la irradiancia solar y la temperatura ambiente. Para mantener un bus DC regulado (por ejemplo a $V_{	ext{ref}} = 48	ext{ V}$) capaz de alimentar cargas industriales críticas sin sobretensiones, se utiliza un convertidor conmutado Buck seguido de un <strong>filtro pasabajas $LC$ acoplado a una carga resistiva equivalente $R$</strong>.
+            En una <strong>microred solar fotovoltaica de corriente directa (DC)</strong>, la generación primaria varía constantemente debido a cambios en la irradiancia solar y la temperatura ambiente. Para mantener un bus DC regulado (por ejemplo a $V_{\text{ref}} = 48\text{ V}$) capaz de alimentar cargas industriales críticas sin sobretensiones, se utiliza un convertidor conmutado Buck seguido de un <strong>filtro pasabajas $LC$ acoplado a una carga resistiva equivalente $R$</strong>.
           </p>
           <div class="space-y-3 pt-2">
             <div class="p-3 bg-slate-50 rounded-lg border border-slate-200">
               <span class="font-bold text-sky-700">Planta:</span> Etapa de potencia del filtro RLC conformada por el inductor $L$, el capacitor de salida $C$ y la resistencia de carga de la microred $R$.
             </div>
             <div class="p-3 bg-slate-50 rounded-lg border border-slate-200">
-              <span class="font-bold text-sky-700">Actuador:</span> Interruptor MOSFET de potencia gobernado por un modulador PWM que aplica una tensión controlada $u(t) = d(t)\cdot V_{	ext{in}}$ al filtro.
+              <span class="font-bold text-sky-700">Actuador:</span> Interruptor MOSFET de potencia gobernado por un modulador PWM que aplica una tensión controlada $u(t) = d(t)\cdot V_{\text{in}}$ al filtro.
             </div>
             <div class="p-3 bg-slate-50 rounded-lg border border-slate-200">
               <span class="font-bold text-sky-700">Sensor (Transductor):</span> Divisor resistivo de precisión con amplificador de aislamiento que mide la tensión de salida $v_C(t)$.
@@ -233,17 +233,17 @@
           <div class="math-box p-4 rounded-r-lg">
             <h4 class="font-bold text-slate-900 text-sm uppercase mb-1">Paso 1: Ley de Voltajes de Kirchhoff (LVK) en la malla de entrada</h4>
             <p class="text-sm text-slate-600 mb-2">La tensión aplicada $u(t)$ equivale a la caída en el inductor más la tensión del capacitor:</p>
-            $$u(t) = Lrac{di_L(t)}{dt} + v_C(t) \implies rac{di_L(t)}{dt} = -rac{1}{L}v_C(t) + rac{1}{L}u(t)$$
+            $$u(t) = L\frac{di_L(t)}{dt} + v_C(t) \implies \frac{di_L(t)}{dt} = -\frac{1}{L}v_C(t) + \frac{1}{L}u(t)$$
           </div>
 
           <div class="math-box p-4 rounded-r-lg">
             <h4 class="font-bold text-slate-900 text-sm uppercase mb-1">Paso 2: Ley de Corrientes de Kirchhoff (LCK) en el nodo de salida</h4>
             <p class="text-sm text-slate-600 mb-2">La corriente del inductor se divide entre el capacitor y la resistencia de carga $R$:</p>
-            $$i_L(t) = Crac{dv_C(t)}{dt} + rac{v_C(t)}{R} \implies rac{dv_C(t)}{dt} = rac{1}{C}i_L(t) - rac{1}{RC}v_C(t)$$
+            $$i_L(t) = C\frac{dv_C(t)}{dt} + \frac{v_C(t)}{R} \implies \frac{dv_C(t)}{dt} = \frac{1}{C}i_L(t) - \frac{1}{RC}v_C(t)$$
           </div>
 
           <div class="p-4 bg-sky-50 border border-sky-200 rounded-lg text-sm text-slate-700">
-            <strong>Justificación de Parámetros Nominales:</strong> Con $L = 2	ext{ mH}$, $C = 500	ext{ }\mu	ext{F}$ y $R = 10	ext{ }\Omega$, la frecuencia natural del filtro es $\omega_n = rac{1}{\sqrt{LC}} = 1000	ext{ rad/s}$ ($f_c pprox 159.15	ext{ Hz}$), logrando filtrar el rizado PWM de alta frecuencia ($>20	ext{ kHz}$), pero presentando en lazo abierto un bajo amortiguamiento ($\zeta = 0.1$) que exige control realimentado.
+            <strong>Justificación de Parámetros Nominales:</strong> Con $L = 2\text{ mH}$, $C = 500\text{ }\mu\text{F}$ y $R = 10\text{ }\Omega$, la frecuencia natural del filtro es $\omega_n = \frac{1}{\sqrt{LC}} = 1000\text{ rad/s}$ ($f_c \approx 159.15\text{ Hz}$), logrando filtrar el rizado PWM de alta frecuencia ($>20\text{ kHz}$), pero presentando en lazo abierto un bajo amortiguamiento ($\zeta = 0.1$) que exige control realimentado.
           </div>
         </div>
       </div>
@@ -261,15 +261,15 @@
         <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 space-y-4">
           <h4 class="font-bold text-slate-800">Representación Matricial $\dot{\mathbf{x}} = \mathbf{A}\mathbf{x} + \mathbf{B}u$, $\;y = \mathbf{C}\mathbf{x} + \mathbf{D}u$</h4>
           <p class="text-sm text-slate-600">
-            Definiendo el vector de estados $\mathbf{x}(t) = egin{bmatrix} i_L(t) & v_C(t) \end{bmatrix}^T$ y la salida $y(t) = v_C(t)$:
+            Definiendo el vector de estados $\mathbf{x}(t) = \begin{bmatrix} i_L(t) & v_C(t) \end{bmatrix}^T$ y la salida $y(t) = v_C(t)$:
           </p>
           <div class="overflow-x-auto py-2">
-            $$egin{bmatrix} \dot{i}_L \ \dot{v}_C \end{bmatrix} = egin{bmatrix} 0 & -rac{1}{L} \ rac{1}{C} & -rac{1}{RC} \end{bmatrix} egin{bmatrix} i_L \ v_C \end{bmatrix} + egin{bmatrix} rac{1}{L} \ 0 \end{bmatrix} u(t) = egin{bmatrix} 0 & -500 \ 2000 & -200 \end{bmatrix} egin{bmatrix} i_L \ v_C \end{bmatrix} + egin{bmatrix} 500 \ 0 \end{bmatrix} u(t)$$
-            $$y(t) = egin{bmatrix} 0 & 1 \end{bmatrix} egin{bmatrix} i_L \ v_C \end{bmatrix} + [0]u(t)$$
+            $$\begin{bmatrix} \dot{i}_L \\ \dot{v}_C \end{bmatrix} = \begin{bmatrix} 0 & -\dfrac{1}{L} \\ \dfrac{1}{C} & -\dfrac{1}{RC} \end{bmatrix} \begin{bmatrix} i_L \\ v_C \end{bmatrix} + \begin{bmatrix} \dfrac{1}{L} \\ 0 \end{bmatrix} u(t) = \begin{bmatrix} 0 & -500 \\ 2000 & -200 \end{bmatrix} \begin{bmatrix} i_L \\ v_C \end{bmatrix} + \begin{bmatrix} 500 \\ 0 \end{bmatrix} u(t)$$
+            $$y(t) = \begin{bmatrix} 0 & 1 \end{bmatrix} \begin{bmatrix} i_L \\ v_C \end{bmatrix} + [0]u(t)$$
           </div>
           <div class="math-box p-4 rounded-r-lg">
             <h5 class="font-bold text-xs uppercase text-slate-500 mb-1">Función de Transferencia Equivalente $G(s) = \mathbf{C}(s\mathbf{I}-\mathbf{A})^{-1}\mathbf{B} + \mathbf{D}$</h5>
-            $$G(s) = rac{\dfrac{1}{LC}}{s^2 + \dfrac{1}{RC}s + \dfrac{1}{LC}} = rac{1\,000\,000}{s^2 + 200s + 1\,000\,000}$$
+            $$G(s) = \frac{\dfrac{1}{LC}}{s^2 + \dfrac{1}{RC}s + \dfrac{1}{LC}} = \frac{1\,000\,000}{s^2 + 200s + 1\,000\,000}$$
           </div>
         </div>
 
@@ -461,53 +461,117 @@
 
       <!-- Validación Oficial en GNU Octave -->
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        <div class="bg-slate-900 text-slate-100 p-6 rounded-xl shadow-sm overflow-x-auto">
-          <div class="flex items-center justify-between mb-3">
-            <span class="text-xs font-bold uppercase tracking-wider text-sky-400">Script Oficial GNU Octave (Proyect.m)</span>
+        <div class="bg-slate-900 text-slate-100 p-6 rounded-xl shadow-sm overflow-x-auto max-h-[540px]">
+          <div class="flex items-center justify-between mb-3 sticky top-0 bg-slate-900 pb-2 border-b border-slate-800">
+            <span class="text-xs font-bold uppercase tracking-wider text-sky-400">Script Oficial Completo GNU Octave (Proyect.m)</span>
             <span class="text-xs bg-slate-800 px-2 py-1 rounded text-slate-300">pkg load control</span>
           </div>
-<pre class="text-xs font-mono leading-relaxed text-emerald-300"><code>% PROYECTO ANÁLISIS DE SISTEMAS (ELEC-5308) - TEMA 8
+<pre class="text-xs font-mono leading-relaxed text-emerald-300"><code>% =========================================================================
+% PROYECTO DE INVESTIGACIÓN APLICADA - ANÁLISIS DE SISTEMAS (ELEC-5308)
+% Tema 8: Regulación de Tensión en Convertidores RLC para Microredes Solares
+% =========================================================================
 clear all; close all; clc;
 pkg load control;
 
-L = 2e-3; C = 500e-6; R = 10; V_ref = 48;
+% 1. PARÁMETROS FÍSICOS NOMINALES DE LA MICRORED SOLAR
+L = 2e-3;       % Inductancia del filtro [H] (2 mH)
+C = 500e-6;     % Capacitancia del filtro [F] (500 uF)
+R = 10;         % Resistencia equivalente de carga [Ohm]
+V_ref = 48;     % Tensión nominal del bus DC de la microred [V]
 
-% Espacio de Estados
-A = [0, -1/L; 1/C, -1/(R*C)];
-B = [1/L; 0];
-C_mat = [0, 1];
+% 2. FORMULACIÓN EN ESPACIO DE ESTADOS (x1 = i_L, x2 = v_C)
+A = [  0,     -1/L;
+      1/C,  -1/(R*C) ];
+B = [ 1/L;
+       0  ];
+C_mat = [ 0, 1 ];
 D = 0;
 
 sys_ss = ss(A, B, C_mat, D);
 G_s = tf(sys_ss);
+
+disp('--- MATRIZ A Y AUTOVALORES (POLOS LAZO ABIERTO) ---');
+disp(A);
 polos_LA = eig(A)
 
-% Controlador PID en Lazo Cerrado
-Kp = 1.2; Ki = 400; Kd = 0.0015;
+% 3. DISEÑO DEL CONTROLADOR EN LAZO CERRADO (PID Sintonizado)
+Kp = 1.2;
+Ki = 400;
+Kd = 0.0015;
+
 s = tf('s');
 C_s = Kp + Ki/s + Kd*s;
 T_s = feedback(C_s * G_s, 1);
 
+disp('--- POLOS Y CEROS EN LAZO CERRADO ---');
 polos_LC = pole(T_s)
 ceros_LC = zero(T_s)
 
+% 4. SIMULACIÓN DE RESPUESTA AL ESCALÓN (Bus DC de 48 V)
 t = 0:0.0001:0.06;
 [y_LA, t_LA] = step(V_ref * G_s, t);
-[y_LC, t_LC] = step(V_ref * T_s, t);</code></pre>
+[y_LC, t_LC] = step(V_ref * T_s, t);
+
+overshoot_LA = ((max(y_LA) - y_LA(end)) / y_LA(end)) * 100;
+overshoot_LC = ((max(y_LC) - y_LC(end)) / y_LC(end)) * 100;
+
+fprintf('\nValor final Lazo Abierto: %.2f V | Pico Max: %.2f V | Sobreimpulso: %.2f%%\n', ...
+        y_LA(end), max(y_LA), overshoot_LA);
+fprintf('Valor final Lazo Cerrado: %.2f V | Pico Max: %.2f V | Sobreimpulso: %.2f%%\n', ...
+        y_LC(end), max(y_LC), overshoot_LC);
+
+% 5. GRÁFICA 1: COMPARACIÓN DE RESPUESTA AL ESCALÓN
+figure(1);
+plot(t_LA*1000, y_LA, 'r--', 'LineWidth', 2); hold on;
+plot(t_LC*1000, y_LC, 'b-', 'LineWidth', 2.2);
+plot([0 60], [V_ref V_ref], 'k:', 'LineWidth', 1.2);
+grid on;
+title('Respuesta Transitoria de Tension en Bus DC (48 V): Lazo Abierto vs. Lazo Cerrado');
+xlabel('Tiempo [ms]');
+ylabel('Tension en el Capacitor v_C(t) [V]');
+legend('Lazo Abierto (Sin Control)', 'Lazo Cerrado (Controlador PID)', 'Referencia (48 V)', 'Location', 'SouthEast');
+
+% 6. GRÁFICA 2: MAPA DE POLOS Y CEROS
+figure(2);
+pzmap(G_s, 'r', T_s, 'b');
+grid on;
+title('Ubicacion de Polos y Ceros en el Plano-S');
+xlabel('Eje Real (sigma) [rad/s]');
+ylabel('Eje Imaginario (j*omega) [rad/s]');
+legend('Lazo Abierto', 'Lazo Cerrado', 'Location', 'NorthWest');
+
+% 7. EXPORTAR GRÁFICAS EN ALTA RESOLUCIÓN
+print(1, 'figura1_escalon.png', '-dpng', '-r300');
+print(2, 'figura2_polos.png', '-dpng', '-r300');</code></pre>
         </div>
 
         <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 space-y-4">
-          <h4 class="text-sm font-bold uppercase tracking-wider text-slate-600">Capturas de Comprobación Experimental (GNU Octave)</h4>
-          <p class="text-xs text-slate-500">
-            Resultados generados directamente en GNU Octave-11.3.0 validando la respuesta transitoria y la ubicación de polos y ceros.
+          <div class="flex items-center justify-between">
+            <h4 class="text-sm font-bold uppercase tracking-wider text-slate-600">Capturas de Comprobación Experimental (GNU Octave)</h4>
+          </div>
+          <p class="text-xs text-slate-600">
+            Al ejecutar el script en GNU Octave, se exportan automáticamente <code>figura1_escalon.png</code> y <code>figura2_polos.png</code>. Si aún no están en la misma carpeta que este HTML, puedes cargarlas aquí mismo desde tu computadora para previsualizarlas:
           </p>
+
+          <!-- Carga opcional de imágenes locales si se abre desde otra carpeta -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 bg-sky-50 p-3 rounded-lg border border-sky-200 text-xs">
+            <div>
+              <label class="block font-bold text-sky-900 mb-1">Cargar Fig. 1 (Escalón):</label>
+              <input type="file" id="uploadFig1" accept="image/*" class="w-full text-slate-600 file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:text-xs file:font-semibold file:bg-sky-600 file:text-white hover:file:bg-sky-700">
+            </div>
+            <div>
+              <label class="block font-bold text-sky-900 mb-1">Cargar Fig. 2 (Polos):</label>
+              <input type="file" id="uploadFig2" accept="image/*" class="w-full text-slate-600 file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:text-xs file:font-semibold file:bg-sky-600 file:text-white hover:file:bg-sky-700">
+            </div>
+          </div>
+
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <figure class="border border-slate-200 rounded-lg p-2 bg-slate-50">
-              <img src="figura1_escalon.png" alt="Gráfica GNU Octave Respuesta al Escalón" class="w-full h-auto rounded">
+              <img id="imgFig1" src="figura1_escalon.png" onerror="this.onerror=null; this.src='data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22400%22 height=%22260%22><rect width=%22100%25%22 height=%22100%25%22 fill=%22%23f1f5f9%22/><text x=%2250%25%22 y=%2245%25%22 font-family=%22sans-serif%22 font-size=%2213%22 font-weight=%22bold%22 fill=%22%23334155%22 text-anchor=%22middle%22>figura1_escalon.png no encontrada</text><text x=%2250%25%22 y=%2258%25%22 font-family=%22sans-serif%22 font-size=%2211%22 fill=%22%2364748b%22 text-anchor=%22middle%22>Colócala junto a index.html o cárgala arriba</text></svg>';" alt="Gráfica GNU Octave Respuesta al Escalón" class="w-full h-auto rounded">
               <figcaption class="text-xs text-center text-slate-600 mt-2 font-medium">Fig. 1: Respuesta al Escalón (Octave)</figcaption>
             </figure>
             <figure class="border border-slate-200 rounded-lg p-2 bg-slate-50">
-              <img src="figura2_polos.png" alt="Gráfica GNU Octave Mapa de Polos y Ceros" class="w-full h-auto rounded">
+              <img id="imgFig2" src="figura2_polos.png" onerror="this.onerror=null; this.src='data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22400%22 height=%22260%22><rect width=%22100%25%22 height=%22100%25%22 fill=%22%23f1f5f9%22/><text x=%2250%25%22 y=%2245%25%22 font-family=%22sans-serif%22 font-size=%2213%22 font-weight=%22bold%22 fill=%22%23334155%22 text-anchor=%22middle%22>figura2_polos.png no encontrada</text><text x=%2250%25%22 y=%2258%25%22 font-family=%22sans-serif%22 font-size=%2211%22 fill=%22%2364748b%22 text-anchor=%22middle%22>Colócala junto a index.html o cárgala arriba</text></svg>';" alt="Gráfica GNU Octave Mapa de Polos y Ceros" class="w-full h-auto rounded">
               <figcaption class="text-xs text-center text-slate-600 mt-2 font-medium">Fig. 2: Mapa de Polos y Ceros (Octave)</figcaption>
             </figure>
           </div>
@@ -535,18 +599,18 @@ t = 0:0.0001:0.06;
             <tbody class="divide-y divide-slate-200">
               <tr>
                 <td class="p-3 font-semibold">Polos / Autovalores</td>
-                <td class="p-3 font-mono text-xs">$s_{1,2} = -100.00 \pm j\,994.99	ext{ rad/s}$</td>
-                <td class="p-3 font-mono text-xs">$p_{1,2} = -743.85 \pm j\,1153.63$, $p_3 = -212.30	ext{ rad/s}$</td>
+                <td class="p-3 font-mono text-xs">$s_{1,2} = -100.00 \pm j\,994.99\text{ rad/s}$</td>
+                <td class="p-3 font-mono text-xs">$p_{1,2} = -743.85 \pm j\,1153.63$, $p_3 = -212.30\text{ rad/s}$</td>
               </tr>
               <tr>
                 <td class="p-3 font-semibold">Ceros del Sistema</td>
                 <td class="p-3">Ninguno</td>
-                <td class="p-3 font-mono text-xs">$z_{1,2} = -400.00 \pm j\,326.60	ext{ rad/s}$</td>
+                <td class="p-3 font-mono text-xs">$z_{1,2} = -400.00 \pm j\,326.60\text{ rad/s}$</td>
               </tr>
               <tr>
-                <td class="p-3 font-semibold">Teorema del Valor Final ($V_{	ext{ref}} = 48	ext{ V}$)</td>
-                <td class="p-3">$\lim_{s	o 0} srac{48}{s}G(s) = 48.00	ext{ V}$ (sensible a carga)</td>
-                <td class="p-3">$\lim_{s	o 0} srac{48}{s}T(s) = 48.00	ext{ V}$ ($e_{ss} = 0	ext{ V}$ garantizado)</td>
+                <td class="p-3 font-semibold">Teorema del Valor Final ($V_{\text{ref}} = 48\text{ V}$)</td>
+                <td class="p-3">$\lim_{s\to 0} s\dfrac{48}{s}G(s) = 48.00\text{ V}$ (sensible a carga)</td>
+                <td class="p-3">$\lim_{s\to 0} s\dfrac{48}{s}T(s) = 48.00\text{ V}$ ($e_{ss} = 0\text{ V}$ garantizado)</td>
               </tr>
               <tr>
                 <td class="p-3 font-semibold">Sobreimpulso Máximo ($M_p$)</td>
@@ -555,8 +619,8 @@ t = 0:0.0001:0.06;
               </tr>
               <tr>
                 <td class="p-3 font-semibold">Tiempo de Establecimiento ($t_s$)</td>
-                <td class="p-3">$pprox 40	ext{ ms}$ con oscilación sostenida</td>
-                <td class="p-3">$pprox 18	ext{ ms}$ (55% más rápido)</td>
+                <td class="p-3">$\approx 40\text{ ms}$ con oscilación sostenida</td>
+                <td class="p-3">$\approx 18\text{ ms}$ (55% más rápido)</td>
               </tr>
             </tbody>
           </table>
@@ -566,13 +630,13 @@ t = 0:0.0001:0.06;
           <div class="p-4 bg-slate-50 rounded-lg border border-slate-200">
             <h4 class="font-bold text-slate-900 mb-2">1. Interpretación Física del Desplazamiento de Polos</h4>
             <p>
-              En lazo abierto, los autovalores de la matriz $\mathbf{A}$ tienen una parte real pequeña ($\sigma = -100	ext{ rad/s}$), lo que produce un intercambio resonante de energía entre el inductor y el capacitor que genera sobretensiones de hasta $83	ext{ V}$. Al cerrar el lazo con acción derivativa e integral, los polos se desplazan profundamente hacia el semiplano izquierdo ($\sigma = -743.85	ext{ rad/s}$), introduciendo amortiguamiento activo sin pérdidas disipativas en resistencias físicas.
+              En lazo abierto, los autovalores de la matriz $\mathbf{A}$ tienen una parte real pequeña ($\sigma = -100\text{ rad/s}$), lo que produce un intercambio resonante de energía entre el inductor y el capacitor que genera sobretensiones de hasta $83\text{ V}$. Al cerrar el lazo con acción derivativa e integral, los polos se desplazan profundamente hacia el semiplano izquierdo ($\sigma = -743.85\text{ rad/s}$), introduciendo amortiguamiento activo sin pérdidas disipativas en resistencias físicas.
             </p>
           </div>
           <div class="p-4 bg-slate-50 rounded-lg border border-slate-200">
             <h4 class="font-bold text-slate-900 mb-2">2. Impacto en la Confiabilidad de la Microred Solar</h4>
             <p>
-              La acción integral ($K_i/s$) asegura mediante el Teorema del Valor Final que la tensión en el bus DC permanezca clavada en exactamente $48.00	ext{ V}$ incluso cuando la irradiancia solar fluctúa o entran nuevas cargas en paralelo, protegiendo inversores, baterías y equipos electrónicos sensibles.
+              La acción integral ($K_i/s$) asegura mediante el Teorema del Valor Final que la tensión en el bus DC permanezca clavada en exactamente $48.00\text{ V}$ incluso cuando la irradiancia solar fluctúa o entran nuevas cargas en paralelo, protegiendo inversores, baterías y equipos electrónicos sensibles.
             </p>
           </div>
         </div>
@@ -585,8 +649,20 @@ t = 0:0.0001:0.06;
     <p>Universidad Hispanoamericana · Ingeniería Electrónica · Curso: Análisis de Sistemas (ELEC-5308) · 2026</p>
   </footer>
 
-  <!-- Motor de Simulación Numérica RK4 en JavaScript -->
+  <!-- Motor de Simulación Numérica RK4 y Carga de Capturas -->
   <script>
+    // Previsualización instantánea si el usuario selecciona las imágenes localmente
+    document.getElementById('uploadFig1').addEventListener('change', function(e) {
+      if (e.target.files && e.target.files[0]) {
+        document.getElementById('imgFig1').src = URL.createObjectURL(e.target.files[0]);
+      }
+    });
+    document.getElementById('uploadFig2').addEventListener('change', function(e) {
+      if (e.target.files && e.target.files[0]) {
+        document.getElementById('imgFig2').src = URL.createObjectURL(e.target.files[0]);
+      }
+    });
+
     const sliderL = document.getElementById('sliderL');
     const sliderC = document.getElementById('sliderC');
     const sliderR = document.getElementById('sliderR');
@@ -615,14 +691,11 @@ t = 0:0.0001:0.06;
       document.getElementById('valKi').textContent = sliderKi.value;
       document.getElementById('valKd').textContent = Kd.toFixed(4);
 
-      // Integración numérica RK4 para t = 0 a 60 ms
-      const dt = 0.00005; // 50 us
+      const dt = 0.00005;
       const tMax = 0.06;
       const steps = Math.floor(tMax / dt);
 
-      // Estados Lazo Abierto: x1 = iL, x2 = vC
       let x1_la = 0, x2_la = 0;
-      // Estados Lazo Cerrado: x1 = iL, x2 = vC, xi = integral del error
       let x1_lc = 0, x2_lc = 0, xi_lc = 0;
 
       const dataLA = [];
@@ -638,7 +711,6 @@ t = 0:0.0001:0.06;
         if (x2_la > maxLA) maxLA = x2_la;
         if (x2_lc > maxLC) maxLC = x2_lc;
 
-        // Lazo Abierto (u = Vref)
         const f_la = (iL, vC) => [(-vC + Vref) / L, (iL - vC / R) / C];
         const k1 = f_la(x1_la, x2_la);
         const k2 = f_la(x1_la + 0.5*dt*k1[0], x2_la + 0.5*dt*k1[1]);
@@ -647,7 +719,6 @@ t = 0:0.0001:0.06;
         x1_la += (dt/6)*(k1[0] + 2*k2[0] + 2*k3[0] + k4[0]);
         x2_la += (dt/6)*(k1[1] + 2*k2[1] + 2*k3[1] + k4[1]);
 
-        // Lazo Cerrado PID (de/dt = -dvC/dt = -(iL - vC/R)/C)
         const f_lc = (iL, vC, xi) => {
           const e = Vref - vC;
           const de = -(iL - vC / R) / C;
@@ -668,7 +739,6 @@ t = 0:0.0001:0.06;
       document.getElementById('metricOsLA').textContent = osLA.toFixed(1) + '%';
       document.getElementById('metricOsLC').textContent = osLC.toFixed(1) + '%';
 
-      // Polos Lazo Abierto: s^2 + (1/RC)s + 1/LC = 0
       const b_la = 1 / (R * C);
       const c_la = 1 / (L * C);
       const disc = b_la * b_la - 4 * c_la;
@@ -685,7 +755,6 @@ t = 0:0.0001:0.06;
         document.getElementById('metricPolesLA').textContent = `${re.toFixed(2)} ± j${im.toFixed(2)} rad/s`;
       }
 
-      // Polos Lazo Cerrado (Cúbica: s^3 + a2*s^2 + a1*s + a0 = 0)
       const a2 = (1 / (R * C)) + (Kd / (L * C));
       const a1 = (1 + Kp) / (L * C);
       const a0 = Ki / (L * C);
@@ -704,7 +773,6 @@ t = 0:0.0001:0.06;
       drawPoleChart(polesLA, polesLC);
     }
 
-    // Método de Durand-Kerner para raíces de s^3 + a2*s^2 + a1*s + a0 = 0
     function solveCubic(a2, a1, a0) {
       let roots = [
         { re: -a2 / 3, im: 0 },
@@ -712,7 +780,6 @@ t = 0:0.0001:0.06;
         { re: -a2 / 3, im: -500 }
       ];
       const evalP = (z) => {
-        // z^3 + a2*z^2 + a1*z + a0
         const z2 = { re: z.re*z.re - z.im*z.im, im: 2*z.re*z.im };
         const z3 = { re: z2.re*z.re - z2.im*z.im, im: z2.re*z.im + z2.im*z.re };
         return {
@@ -749,7 +816,6 @@ t = 0:0.0001:0.06;
       const toX = (t) => pad.l + (t / 60) * (w - pad.l - pad.r);
       const toY = (y) => h - pad.b - (Math.min(Math.max(y, 0), yMax) / yMax) * (h - pad.t - pad.b);
 
-      // Grilla
       stepCtx.strokeStyle = '#e2e8f0';
       stepCtx.lineWidth = 1;
       stepCtx.font = '11px sans-serif';
@@ -765,7 +831,6 @@ t = 0:0.0001:0.06;
         stepCtx.fillText(t + 'ms', x - 12, h - 10);
       }
 
-      // Línea Referencia 48V
       stepCtx.strokeStyle = '#94a3b8';
       stepCtx.setLineDash([4, 4]);
       stepCtx.beginPath();
@@ -774,7 +839,6 @@ t = 0:0.0001:0.06;
       stepCtx.stroke();
       stepCtx.setLineDash([]);
 
-      // Curva Lazo Abierto
       stepCtx.strokeStyle = '#dc2626';
       stepCtx.lineWidth = 2;
       stepCtx.setLineDash([6, 4]);
@@ -783,7 +847,6 @@ t = 0:0.0001:0.06;
       stepCtx.stroke();
       stepCtx.setLineDash([]);
 
-      // Curva Lazo Cerrado
       stepCtx.strokeStyle = '#0284c7';
       stepCtx.lineWidth = 2.8;
       stepCtx.beginPath();
@@ -801,7 +864,6 @@ t = 0:0.0001:0.06;
       const toX = (re) => pad.l + ((re - reMin) / (reMax - reMin)) * (w - pad.l - pad.r);
       const toY = (im) => (h / 2) - (im / imMax) * ((h - pad.t - pad.b) / 2);
 
-      // Grilla y Ejes
       poleCtx.strokeStyle = '#e2e8f0';
       poleCtx.lineWidth = 1;
       poleCtx.font = '10px sans-serif';
@@ -813,13 +875,11 @@ t = 0:0.0001:0.06;
         poleCtx.fillText(r, x - 12, h - 8);
       }
 
-      // Eje Imaginario (sigma = 0)
       const xZero = toX(0);
       poleCtx.strokeStyle = '#64748b';
       poleCtx.lineWidth = 1.5;
       poleCtx.beginPath(); poleCtx.moveTo(xZero, pad.t); poleCtx.lineTo(xZero, h - pad.b); poleCtx.stroke();
 
-      // Eje Real (j*omega = 0)
       const yZero = toY(0);
       poleCtx.beginPath(); poleCtx.moveTo(pad.l, yZero); poleCtx.lineTo(w - pad.r, yZero); poleCtx.stroke();
 
