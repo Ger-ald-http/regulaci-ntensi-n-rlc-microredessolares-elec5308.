@@ -550,28 +550,16 @@ print(2, 'figura2_polos.png', '-dpng', '-r300');</code></pre>
             <h4 class="text-sm font-bold uppercase tracking-wider text-slate-600">Capturas de Comprobación Experimental (GNU Octave)</h4>
           </div>
           <p class="text-xs text-slate-600">
-            Al ejecutar el script en GNU Octave, se exportan automáticamente <code>figura1_escalon.png</code> y <code>figura2_polos.png</code>. Si aún no están en la misma carpeta que este HTML, puedes cargarlas aquí mismo desde tu computadora para previsualizarlas:
+            Gráficas oficiales generadas en GNU Octave-11.3.0 mediante el paquete <code>control</code>, validando el sobreimpulso transitorio en lazo abierto y la estabilización en lazo cerrado:
           </p>
 
-          <!-- Carga opcional de imágenes locales si se abre desde otra carpeta -->
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 bg-sky-50 p-3 rounded-lg border border-sky-200 text-xs">
-            <div>
-              <label class="block font-bold text-sky-900 mb-1">Cargar Fig. 1 (Escalón):</label>
-              <input type="file" id="uploadFig1" accept="image/*" class="w-full text-slate-600 file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:text-xs file:font-semibold file:bg-sky-600 file:text-white hover:file:bg-sky-700">
-            </div>
-            <div>
-              <label class="block font-bold text-sky-900 mb-1">Cargar Fig. 2 (Polos):</label>
-              <input type="file" id="uploadFig2" accept="image/*" class="w-full text-slate-600 file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:text-xs file:font-semibold file:bg-sky-600 file:text-white hover:file:bg-sky-700">
-            </div>
-          </div>
-
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
             <figure class="border border-slate-200 rounded-lg p-2 bg-slate-50">
-              <img id="imgFig1" src="figura1_escalon.png" onerror="this.onerror=null; this.src='data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22400%22 height=%22260%22><rect width=%22100%25%22 height=%22100%25%22 fill=%22%23f1f5f9%22/><text x=%2250%25%22 y=%2245%25%22 font-family=%22sans-serif%22 font-size=%2213%22 font-weight=%22bold%22 fill=%22%23334155%22 text-anchor=%22middle%22>figura1_escalon.png no encontrada</text><text x=%2250%25%22 y=%2258%25%22 font-family=%22sans-serif%22 font-size=%2211%22 fill=%22%2364748b%22 text-anchor=%22middle%22>Colócala junto a index.html o cárgala arriba</text></svg>';" alt="Gráfica GNU Octave Respuesta al Escalón" class="w-full h-auto rounded">
+              <img src="figura1_escalon.png" alt="Gráfica GNU Octave Respuesta al Escalón" class="w-full h-auto rounded">
               <figcaption class="text-xs text-center text-slate-600 mt-2 font-medium">Fig. 1: Respuesta al Escalón (Octave)</figcaption>
             </figure>
             <figure class="border border-slate-200 rounded-lg p-2 bg-slate-50">
-              <img id="imgFig2" src="figura2_polos.png" onerror="this.onerror=null; this.src='data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22400%22 height=%22260%22><rect width=%22100%25%22 height=%22100%25%22 fill=%22%23f1f5f9%22/><text x=%2250%25%22 y=%2245%25%22 font-family=%22sans-serif%22 font-size=%2213%22 font-weight=%22bold%22 fill=%22%23334155%22 text-anchor=%22middle%22>figura2_polos.png no encontrada</text><text x=%2250%25%22 y=%2258%25%22 font-family=%22sans-serif%22 font-size=%2211%22 fill=%22%2364748b%22 text-anchor=%22middle%22>Colócala junto a index.html o cárgala arriba</text></svg>';" alt="Gráfica GNU Octave Mapa de Polos y Ceros" class="w-full h-auto rounded">
+              <img src="figura2_polos.png" alt="Gráfica GNU Octave Mapa de Polos y Ceros" class="w-full h-auto rounded">
               <figcaption class="text-xs text-center text-slate-600 mt-2 font-medium">Fig. 2: Mapa de Polos y Ceros (Octave)</figcaption>
             </figure>
           </div>
@@ -649,20 +637,8 @@ print(2, 'figura2_polos.png', '-dpng', '-r300');</code></pre>
     <p>Universidad Hispanoamericana · Ingeniería Electrónica · Curso: Análisis de Sistemas (ELEC-5308) · 2026</p>
   </footer>
 
-  <!-- Motor de Simulación Numérica RK4 y Carga de Capturas -->
+  <!-- Motor de Simulación Numérica RK4 en JavaScript -->
   <script>
-    // Previsualización instantánea si el usuario selecciona las imágenes localmente
-    document.getElementById('uploadFig1').addEventListener('change', function(e) {
-      if (e.target.files && e.target.files[0]) {
-        document.getElementById('imgFig1').src = URL.createObjectURL(e.target.files[0]);
-      }
-    });
-    document.getElementById('uploadFig2').addEventListener('change', function(e) {
-      if (e.target.files && e.target.files[0]) {
-        document.getElementById('imgFig2').src = URL.createObjectURL(e.target.files[0]);
-      }
-    });
-
     const sliderL = document.getElementById('sliderL');
     const sliderC = document.getElementById('sliderC');
     const sliderR = document.getElementById('sliderR');
